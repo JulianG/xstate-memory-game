@@ -30,7 +30,6 @@ describe('memory-game', () => {
     expect(getState()).toEqual('twoSelected')
     expect(getContext().secondSelected).toEqual({ type: 1 })
 
-    service.send({ type: 'COMPARE' })
     expect(getContext().pairs).toEqual([{ type: 1 }, { type: 1 }])
     expect(getContext().cards).toMatchObject([
       null,

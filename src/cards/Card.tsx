@@ -25,6 +25,10 @@ const cards = [
   require('./021-candle.png')
 ]
 
+export const CardGrid: React.FC = ({ children }) => {
+  return <div className="cardgrid">{children}</div>
+}
+
 type VisibleCardProps = {
   cardId: number
 }
@@ -32,7 +36,7 @@ export const Card: React.FC<VisibleCardProps> = ({ cardId }) => {
   return (
     <div className="card">
       <div className="cardbg">
-        <img src={cards[cardId]} draggable={false} />
+        <img alt={`card-${cardId}`} src={cards[cardId]} draggable={false} />
       </div>
     </div>
   )
@@ -45,7 +49,7 @@ type CardBackProps = {
 export const CardBack: React.FC<CardBackProps> = ({ onSelect }) => (
   <div className="card" onClick={onSelect}>
     <div className="cardbg">
-      <img src={cards[0]} draggable={false} />
+      <img alt={`card-back`} src={cards[0]} draggable={false} />
     </div>
   </div>
 )
@@ -54,7 +58,7 @@ export const NoCard = () => {
   return (
     <div className="card nocard">
       <div className="cardbg nocard">
-        <img src={cards[0]} draggable={false} />
+        <img alt={`card-no-card`} src={cards[0]} draggable={false} />
       </div>
     </div>
   )

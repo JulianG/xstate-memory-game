@@ -1,10 +1,8 @@
 import React from 'react'
 import { useMachine } from '@xstate/react'
-import { createMemoryGameMachine, GameContext, GameCard } from './memory-game'
-import { CardGrid } from './cards/CardGrid'
+import { createMemoryGameMachine, GameCard } from './memory-game'
+import { CardGrid, Card, NoCard, CardBack } from './cards/Card'
 import { Footer } from './Footer'
-import { Card, NoCard, CardBack } from './cards/Card'
-import { send } from 'xstate/lib/actionTypes'
 
 const machine = createMemoryGameMachine({
   cards: createCards(6),
@@ -16,9 +14,6 @@ const machine = createMemoryGameMachine({
 const App: React.FC = () => {
   const [current, send] = useMachine(machine)
 
-  React.useEffect(() => {
-    setInterval(() => send(''), 1000)
-  }, [])
   const { firstSelected, secondSelected } = current.context
 
   const selectCard = (card: GameCard) => {
@@ -32,21 +27,22 @@ const App: React.FC = () => {
         send('CONTINUE')
       }, 500)
     }
-  }, [current.value])
+  }, [current.value, send])
 
   return (
     <div>
       <CardGrid>
-        {current.context.cards.map(card => {
+        {current.context.cards.map((card, index) => {
+
           const visible = card === firstSelected || card === secondSelected
           return card ? (
             visible ? (
-              <Card cardId={card.type} />
+              <Card key={index} cardId={card.type} />
             ) : (
-              <CardBack onSelect={() => selectCard(card)} />
+              <CardBack key={index} onSelect={() => selectCard(card)} />
             )
           ) : (
-            <NoCard />
+            <NoCard key={index} />
           )
         })}
       </CardGrid>
@@ -57,27 +53,19 @@ const App: React.FC = () => {
 
 export default App
 
-function randomIndex<T>(arr: T[], except: number[]) {
-  if (arr.length <= except.length) {
-    throw new Error('array must be longer than exception list')
-  }
-  let index: number
-  let count = 0
-  do {
-    index = Math.floor(Math.random() * arr.length)
-    count++
-  } while (except.includes(index) || (arr[index] === null && count < 1000))
-
-  return index
-}
-
 function createCards(qty: number): GameCard[] {
   return shuffle(
     Array(qty * 2)
       .fill(0)
-      .map((_, i) => ({ type: Math.floor(i / 2) + 1 }))
+      .map((_, i) => createCard(Math.floor(i / 2) + 1))
   )
 }
+
+function createCard(type: number): GameCard {
+  return { type }
+}
+
+////
 
 function shuffle<T>(array: readonly T[]): T[] {
   const copy = array.slice()

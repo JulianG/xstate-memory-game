@@ -1,4 +1,4 @@
-import { Machine, assign } from 'xstate'
+import { Machine } from 'xstate'
 
 export type GameCard = {
   type: number
@@ -10,6 +10,15 @@ export type GameContext = {
   secondSelected: GameCard | null
 }
 
+type SelectEvent = {
+  type: 'SELECT'
+  index: number
+}
+type ContinueEvent = {
+  type: 'CONTINUE'
+}
+type GameEvent = SelectEvent | ContinueEvent
+
 const isFinished = (c: GameContext) => {
   return c.cards.every(c => c === null)
 }
@@ -18,7 +27,7 @@ const isNotFinished = (c: GameContext) => {
 }
 
 export function createMemoryGameMachine(initialContext: GameContext) {
-  return Machine(
+  return Machine<GameContext, GameEvent>(
     {
       id: 'memory',
       initial: 'idle',
@@ -67,7 +76,7 @@ export function createMemoryGameMachine(initialContext: GameContext) {
     },
     {
       actions: {
-        compareSelections: (context: GameContext, e: any) => {
+        compareSelections: (context: GameContext) => {
           const { firstSelected, secondSelected, cards, pairs } = context
           if (firstSelected!.type === secondSelected!.type) {
             pairs.push(firstSelected, secondSelected)
@@ -77,12 +86,12 @@ export function createMemoryGameMachine(initialContext: GameContext) {
           context.firstSelected = context.secondSelected = null
           return context
         },
-        selectFirst: (context: GameContext, e: any) => {
-          context.firstSelected = context.cards[e.index]
+        selectFirst: (context: GameContext, e) => {
+          context.firstSelected = context.cards[(e as SelectEvent).index]
           return context
         },
-        selectSecond: (context: GameContext, e: any) => {
-          context.secondSelected = context.cards[e.index]
+        selectSecond: (context: GameContext, e) => {
+          context.secondSelected = context.cards[(e as SelectEvent).index]
           return context
         }
       }
