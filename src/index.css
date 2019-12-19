@@ -50,3 +50,11 @@ a {
   visibility: visible;
   box-shadow: inset 0rem 0.05rem 0.2rem rgba(0, 0, 0, 0.2)
 }
+
+.card.collected {
+  background-color: #cccccc;
+}
+
+.card.collected .cardbg {
+  box-shadow: none;
+}

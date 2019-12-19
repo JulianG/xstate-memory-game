@@ -2,10 +2,11 @@ import { Machine } from 'xstate'
 
 export type GameCard = {
   type: number
+  collected: boolean
 }
 export type GameContext = {
-  cards: (GameCard | null)[]
-  pairs: (GameCard | null)[]
+  cards: GameCard[]
+  pairs: GameCard[]
   firstSelected: GameCard | null
   secondSelected: GameCard | null
 }
@@ -20,7 +21,7 @@ type ContinueEvent = {
 type GameEvent = SelectEvent | ContinueEvent
 
 const isFinished = (c: GameContext) => {
-  return c.cards.every(c => c === null)
+  return c.cards.every(c => c.collected)
 }
 const isNotFinished = (c: GameContext) => {
   return !isFinished(c)
@@ -77,11 +78,11 @@ export function createMemoryGameMachine(initialContext: GameContext) {
     {
       actions: {
         compareSelections: (context: GameContext) => {
-          const { firstSelected, secondSelected, cards, pairs } = context
+          const { firstSelected, secondSelected, pairs } = context
           if (firstSelected!.type === secondSelected!.type) {
-            pairs.push(firstSelected, secondSelected)
-            cards[cards.indexOf(firstSelected)] = null
-            cards[cards.indexOf(secondSelected)] = null
+            pairs.push(firstSelected!, secondSelected!)
+            firstSelected!.collected = true
+            secondSelected!.collected = true
           }
           context.firstSelected = context.secondSelected = null
           return context

@@ -42,6 +42,16 @@ export const Card: React.FC<VisibleCardProps> = ({ cardId }) => {
   )
 }
 
+export const CollectedCard: React.FC<VisibleCardProps> = ({ cardId }) => {
+  return (
+    <div className="card collected">
+      <div className="cardbg">
+        <img alt={`card-${cardId}`} src={cards[cardId]} draggable={false} />
+      </div>
+    </div>
+  )
+}
+
 type CardBackProps = {
   onSelect: () => void
 }
