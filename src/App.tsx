@@ -51,6 +51,8 @@ const App: React.FC = () => {
           }
         })}
       </CardGrid>
+      <br/><br/><br/>
+      <Footer />
     </div>
   )
 }
