@@ -20,12 +20,9 @@ type ContinueEvent = {
 }
 type GameEvent = SelectEvent | ContinueEvent
 
-const isFinished = (c: GameContext) => {
-  return c.cards.every(c => c.collected)
-}
-const isNotFinished = (c: GameContext) => {
-  return !isFinished(c)
-}
+const isFinished = (c: GameContext) => c.cards.every(c => c.collected)
+const isNotFinished = (c: GameContext) => !isFinished(c)
+
 
 export function createMemoryGameMachine(initialContext: GameContext) {
   return Machine<GameContext, GameEvent>(
