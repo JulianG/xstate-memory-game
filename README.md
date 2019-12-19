@@ -1,3 +1,13 @@
+# Xstate Memory Game
+
+Play online: https://xstate-memory-game.netlify.com/
+
+![example](./xstate-memory-game.gif)
+
+See the state-chart: https://xstate.js.org/viz/?gist=729222e4b7eb4636294ef0fa273cc4fd
+
+----
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
