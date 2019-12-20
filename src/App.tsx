@@ -1,7 +1,7 @@
 import React from 'react'
 import { useMachine } from '@xstate/react'
 import { createMemoryGameMachine, GameCard } from './memory-game'
-import { CardGrid, Card, CollectedCard, CardBack } from './cards/Card'
+import { CardGrid, Card, CollectedCard, CardBack, NoCard } from './cards/Card'
 import { Footer } from './Footer'
 
 const machine = createMemoryGameMachine({
@@ -29,29 +29,31 @@ const App: React.FC = () => {
     }
   }, [current.value, send])
 
-  console.log(current.value)
-  console.log(current.context)
-  return (
+  return current.matches('finished') ? (
+    <CardGrid>
+      {current.context.cards.map((card, index) => (
+        <CollectedCard key={index} cardId={card.type} />
+      ))}
+    </CardGrid>
+  ) : (
     <div>
       <CardGrid>
         {current.context.cards.map((card, index) => {
-          if (current.value === 'finished') {
-            return <Card key={index} cardId={card.type} />
-          } else {
-            const visible = card === firstSelected || card === secondSelected
-            return !card.collected ? (
-              visible ? (
-                <Card key={index} cardId={card.type} />
-              ) : (
-                <CardBack key={index} onSelect={() => selectCard(card)} />
-              )
+          const visible = card === firstSelected || card === secondSelected
+          return !card.collected ? (
+            visible ? (
+              <Card key={index} cardId={card.type} />
             ) : (
-              <CollectedCard key={index} cardId={card.type} />
+              <CardBack key={index} onSelect={() => selectCard(card)} />
             )
-          }
+          ) : (
+            <NoCard key={index} />
+          )
         })}
       </CardGrid>
-      <br/><br/><br/>
+      <br />
+      <br />
+      <br />
       <Footer />
     </div>
   )

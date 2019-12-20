@@ -1,4 +1,4 @@
-import { Machine } from 'xstate'
+import { Machine, assign } from 'xstate'
 
 export type GameCard = {
   type: number
@@ -74,7 +74,7 @@ export function createMemoryGameMachine(initialContext: GameContext) {
     },
     {
       actions: {
-        compareSelections: (context: GameContext) => {
+        compareSelections: assign((context: GameContext) => {
           const { firstSelected, secondSelected, pairs } = context
           if (firstSelected!.type === secondSelected!.type) {
             pairs.push(firstSelected!, secondSelected!)
@@ -83,15 +83,15 @@ export function createMemoryGameMachine(initialContext: GameContext) {
           }
           context.firstSelected = context.secondSelected = null
           return context
-        },
-        selectFirst: (context: GameContext, e) => {
+        }),
+        selectFirst: assign((context: GameContext, e) => {
           context.firstSelected = context.cards[(e as SelectEvent).index]
           return context
-        },
-        selectSecond: (context: GameContext, e) => {
+        }),
+        selectSecond: assign((context: GameContext, e) => {
           context.secondSelected = context.cards[(e as SelectEvent).index]
           return context
-        }
+        })
       }
     }
   )
