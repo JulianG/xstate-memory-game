@@ -1,9 +1,16 @@
-html {
-  font-size: 20px;
+
+/* .cardgrid>* {
+  border: 1px solid red 
 }
+.card img {
+  border: 1px solid blue;
+} */
+
 body {
   background-color: #443b33;
   color: white;
+  padding: 0;
+  margin: 0;
 }
 
 a {
@@ -11,34 +18,22 @@ a {
 }
 
 .cardgrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  grid-column-gap: 0.5rem;
-  grid-row-gap: 0.5rem;
-  width: 10rem;
+  display: flex;
+  flex-wrap: wrap; 
 }
 
 .card {
+  margin: 0.5vmin;
   background-color: #fff0ee;
-  padding: 1rem;
-  border-radius: 1rem;
+  padding: 2vmin;
+  border-radius: 2vmin;
 }
 
 .cardbg {
   background-color: #cccccc;
-  padding: 1rem;
-  border-radius: 1rem;
-  box-shadow: inset 0rem 0.1rem 0.2rem #aa9999;
-}
-
-.card .cardgb img {
-  width: 8rem;
-  height: 8rem;
-}
-
-.card .cardgb div {
-  width: 8rem;
-  height: 8rem;
+  padding: 1vmin;
+  border-radius: 1vmin;
+  box-shadow: inset 0vmin 0.1vmin 0.2vmin #aa9999;
 }
 
 .nocard {
@@ -48,7 +43,7 @@ a {
 .card.nocard {
   background-color: #443b33;
   visibility: visible;
-  box-shadow: inset 0rem 0.05rem 0.2rem rgba(0, 0, 0, 0.2)
+  box-shadow: inset 0vmin 0.05vmin 0.2vmin rgba(0, 0, 0, 0.2)
 }
 
 .card.collected {
