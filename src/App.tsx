@@ -3,11 +3,12 @@ import { useMachine } from '@xstate/react'
 import { createMemoryGameMachine, GameCard } from './memory-game'
 import { CardGrid, Card, CollectedCard, CardBack, NoCard } from './cards/Card'
 import { Footer } from './Footer'
+import { createCards, shuffle } from './factory'
 
 const numCards = Number.parseInt(window.location.pathname.substr(1)) || 12
 
 const machine = createMemoryGameMachine({
-  cards: createCards(Math.floor(numCards / 2)),
+  cards: shuffle(createCards(Math.floor(numCards / 2))),
   pairs: [],
   firstSelected: null,
   secondSelected: null
@@ -69,27 +70,4 @@ const App: React.FC = () => {
 
 export default App
 
-function createCards(qty: number): GameCard[] {
-  return shuffle(
-    Array(qty * 2)
-      .fill(0)
-      .map((_, i) => createCard(Math.floor(i / 2) + 1))
-  )
-}
 
-function createCard(type: number): GameCard {
-  return { type, collected: false }
-}
-
-////
-
-function shuffle<T>(array: readonly T[]): T[] {
-  const copy = array.slice()
-  const newArray: T[] = []
-  while (copy.length > 0) {
-    const randomIndex = Math.floor(Math.random() * copy.length)
-    const removedItems = copy.splice(randomIndex, 1)
-    newArray.push(removedItems[0])
-  }
-  return newArray
-}
