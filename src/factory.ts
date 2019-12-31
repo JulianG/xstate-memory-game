@@ -12,7 +12,7 @@ function createCard(type: number): GameCard {
 
 ////
 
-export function shuffle<T>(array: readonly T[]): T[] {
+export function shuffle<T>(array: ReadonlyArray<T>): T[] {
   const copy = array.slice()
   const newArray: T[] = []
   while (copy.length > 0) {
