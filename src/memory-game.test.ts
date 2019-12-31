@@ -1,129 +1,30 @@
-import { createMemoryGameMachine } from './memory-game'
+import { createMemoryGameMachine, GameContext } from './memory-game'
 import { interpret } from 'xstate'
+import { createCards } from './factory'
 
 describe('memory-game', () => {
-  test('happy path', () => {
-    const m = createMemoryGameMachine({
-      cards: [
-        { type: 1 },
-        { type: 1 },
-        { type: 2 },
-        { type: 2 },
-        { type: 3 },
-        { type: 3 }
-      ],
+  test('selecting 2 cards', () => {
+    const machine = createMemoryGameMachine({
+      cards: createCards(3),
       pairs: [],
       firstSelected: null,
       secondSelected: null
     })
 
-    const service = interpret(m).start()
+    const service = interpret(machine).start()
 
-    const getContext = () => service.machine.context!
-    const getState = () => service.state.value
+    service.onTransition(state => console.log('state', state.value))
 
     service.send({ type: 'SELECT', index: 0 })
-    expect(getState()).toEqual('oneSelected')
-    expect(getContext().firstSelected).toEqual({ type: 1 }) 
-   
+
+    expect(service.state.value).toEqual('oneSelected')
+    expect(service.machine.context!.firstSelected) //
+      .toMatchObject({ type: 1 }) // ok
+
     service.send({ type: 'SELECT', index: 1 })
-    expect(getState()).toEqual('twoSelected')
-    expect(getContext().secondSelected).toEqual({ type: 1 })
 
-    expect(getContext().pairs).toEqual([{ type: 1 }, { type: 1 }])
-    expect(getContext().cards).toMatchObject([
-      null,
-      null,
-      { type: 2 },
-      { type: 2 },
-      { type: 3 },
-      { type: 3 }
-    ])
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
-
-    expect(getState()).toEqual('idle')
-
-    service.send({ type: 'SELECT', index: 2 })
-    expect(getState()).toEqual('oneSelected')
-    expect(getContext().firstSelected).toEqual({ type: 2 })
-
-    service.send({ type: 'SELECT', index: 4 })
-    expect(getState()).toEqual('twoSelected')
-    expect(getContext().secondSelected).toEqual({ type: 3 })
-
-    service.send({ type: 'COMPARE' })
-    expect(getContext().pairs).toEqual([{ type: 1 }, { type: 1 }])
-    expect(getContext().cards).toMatchObject([
-      null,
-      null,
-      { type: 2 },
-      { type: 2 },
-      { type: 3 },
-      { type: 3 }
-    ])
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
-
-    expect(getState()).toEqual('idle')
-
-    service.send({ type: 'SELECT', index: 2 })
-    expect(getState()).toEqual('oneSelected')
-    expect(getContext().firstSelected).toEqual({ type: 2 })
-
-    service.send({ type: 'SELECT', index: 3 })
-    expect(getState()).toEqual('twoSelected')
-    expect(getContext().secondSelected).toEqual({ type: 2 })
-
-    service.send({ type: 'COMPARE' })
-    expect(getContext().pairs).toEqual([
-      { type: 1 },
-      { type: 1 },
-      { type: 2 },
-      { type: 2 }
-    ])
-    expect(getContext().cards).toMatchObject([
-      null,
-      null,
-      null,
-      null,
-      { type: 3 },
-      { type: 3 }
-    ])
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
-
-    expect(getState()).toEqual('idle')
-
-    service.send({ type: 'SELECT', index: 4 })
-    expect(getState()).toEqual('oneSelected')
-    expect(getContext().firstSelected).toEqual({ type: 3 })
-
-    service.send({ type: 'SELECT', index: 5 })
-    expect(getState()).toEqual('twoSelected')
-    expect(getContext().secondSelected).toEqual({ type: 3 })
-
-    service.send({ type: 'COMPARE' })
-
-    expect(getContext().pairs).toEqual([
-      { type: 1 },
-      { type: 1 },
-      { type: 2 },
-      { type: 2 },
-      { type: 3 },
-      { type: 3 }
-    ])
-    expect(getContext().cards).toMatchObject([
-      null,
-      null,
-      null,
-      null,
-      null,
-      null
-    ])
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
-
-    expect(getState()).toEqual('finished')
+    expect(service.state.value).toEqual('twoSelected')
+    expect(service.machine.context!.secondSelected) //
+      .toMatchObject({ type: 1 }) // fails here. apparently secondSelected is null
   })
 })
