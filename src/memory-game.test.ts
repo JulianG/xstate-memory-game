@@ -1,5 +1,5 @@
 import { createMemoryGameMachine, GameContext } from './memory-game'
-import { interpret } from 'xstate'
+import { interpret, State, EventObject } from 'xstate'
 import { createCards } from './factory'
 
 describe('memory-game', () => {
@@ -7,33 +7,31 @@ describe('memory-game', () => {
     const machine = createMemoryGameMachine({
       cards: createCards(3),
       pairs: [],
-      firstSelected: null,
-      secondSelected: null
+      firstSelected: undefined,
+      secondSelected: undefined
     })
 
     const service = interpret(machine).start()
 
+    const getState = () => service.state
     const getContext = () => service.state.context
-    const assertState = (s: string) => {
-      expect(service.state.matches(s)).toBe(true)
-    }
 
     service.send({ type: 'SELECT', index: 0 })
 
-    assertState('oneSelected')
+    expect(getState().value).toBe('oneSelected')
     expect(getContext().firstSelected).toMatchObject({ type: 1 })
 
     service.send({ type: 'SELECT', index: 1 })
 
-    assertState('twoSelected')
+    expect(getState().value).toBe('twoSelected')
     expect(getContext().firstSelected).toMatchObject({ type: 1 })
     expect(getContext().secondSelected).toMatchObject({ type: 1 })
 
     service.send('CONTINUE')
 
-    assertState('idle')
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
+    expect(getState().value).toBe('idle')
+    expect(getContext().firstSelected).toBeUndefined()
+    expect(getContext().secondSelected).toBeUndefined()
     expect(getContext().pairs).toMatchObject([{ type: 1 }, { type: 1 }])
     expect(getContext().cards).toMatchObject([
       { type: 1, collected: true },
@@ -52,9 +50,9 @@ describe('memory-game', () => {
 
     service.send({ type: 'CONTINUE' })
 
-    assertState('idle')
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
+    expect(getState().value).toBe('idle')
+    expect(getContext().firstSelected).toBeUndefined()
+    expect(getContext().secondSelected).toBeUndefined()
     expect(getContext().pairs).toMatchObject([{ type: 1 }, { type: 1 }])
     expect(getContext().cards).toMatchObject([
       { type: 1, collected: true },
@@ -73,9 +71,9 @@ describe('memory-game', () => {
 
     service.send({ type: 'CONTINUE' })
 
-    assertState('idle')
-    expect(getContext().firstSelected).toBeNull()
-    expect(getContext().secondSelected).toBeNull()
+    expect(getState().value).toBe('idle')
+    expect(getContext().firstSelected).toBeUndefined()
+    expect(getContext().secondSelected).toBeUndefined()
     expect(getContext().pairs).toMatchObject([
       { type: 1 },
       { type: 1 },
@@ -90,8 +88,8 @@ describe('memory-game', () => {
       { type: 3 },
       { type: 3 }
     ])
-    
-    service.send({ type: 'SELECT', index: 4 })    
+
+    service.send({ type: 'SELECT', index: 4 })
     service.send({ type: 'SELECT', index: 5 })
 
     expect(getContext().firstSelected).toMatchObject({ type: 3 })
@@ -99,7 +97,7 @@ describe('memory-game', () => {
 
     service.send({ type: 'CONTINUE' })
 
-    assertState('idle')
+    expect(getState().value).toBe('finished')
     expect(getContext().pairs).toMatchObject([
       { type: 1 },
       { type: 1 },
@@ -116,7 +114,5 @@ describe('memory-game', () => {
       { type: 3, collected: true },
       { type: 3, collected: true }
     ])
-
-    assertState('finished')
   })
 })

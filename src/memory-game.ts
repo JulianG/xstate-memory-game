@@ -1,4 +1,4 @@
-import { Machine, assign } from 'xstate'
+import { Machine, assign, Typestate, createMachine } from 'xstate'
 
 export type GameCard = {
   type: number
@@ -7,9 +7,46 @@ export type GameCard = {
 export type GameContext = {
   cards: GameCard[]
   pairs: GameCard[]
-  firstSelected: GameCard | null
-  secondSelected: GameCard | null
+  firstSelected?: GameCard | undefined
+  secondSelected?: GameCard | undefined
 }
+
+type GameTypeStates =
+  | {
+      value: 'idle'
+      context: GameContext & {
+        firstSelected: undefined
+        secondSelected: undefined
+      }
+    }
+  | {
+      value: 'oneSelected'
+      context: GameContext & {
+        firstSelected: GameCard
+        secondSelected: undefined
+      }
+    }
+  | {
+      value: 'twoSelected'
+      context: GameContext & {
+        firstSelected: GameCard
+        secondSelected: GameCard
+      }
+    }
+  | {
+      value: 'comparing'
+      context: GameContext & {
+        firstSelected: GameCard
+        secondSelected: GameCard
+      }
+    }
+  | {
+      value: 'finished'
+      context: GameContext & {
+        firstSelected: undefined
+        secondSelected: undefined
+      }
+    }
 
 type SelectEvent = {
   type: 'SELECT'
@@ -23,9 +60,8 @@ type GameEvent = SelectEvent | ContinueEvent
 const isFinished = (c: GameContext) => c.cards.every(c => c.collected)
 const isNotFinished = (c: GameContext) => !isFinished(c)
 
-
 export function createMemoryGameMachine(initialContext: GameContext) {
-  return Machine<GameContext, GameEvent>(
+  return createMachine<GameContext, GameEvent, GameTypeStates>(
     {
       id: 'memory',
       initial: 'idle',
@@ -74,21 +110,21 @@ export function createMemoryGameMachine(initialContext: GameContext) {
     },
     {
       actions: {
-        compareSelections: assign((context: GameContext) => {
+        compareSelections: assign(context => {
           const { firstSelected, secondSelected, pairs } = context
           if (firstSelected!.type === secondSelected!.type) {
             pairs.push(firstSelected!, secondSelected!)
             firstSelected!.collected = true
             secondSelected!.collected = true
           }
-          context.firstSelected = context.secondSelected = null
+          context.firstSelected = context.secondSelected = undefined
           return context
         }),
-        selectFirst: assign((context: GameContext, e) => {
+        selectFirst: assign((context, e) => {
           context.firstSelected = context.cards[(e as SelectEvent).index]
           return context
         }),
-        selectSecond: assign((context: GameContext, e) => {
+        selectSecond: assign((context, e) => {
           context.secondSelected = context.cards[(e as SelectEvent).index]
           return context
         })
