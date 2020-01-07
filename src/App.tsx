@@ -10,8 +10,8 @@ const numCards = Number.parseInt(window.location.pathname.substr(1)) || 12
 const machine = createMemoryGameMachine({
   cards: shuffle(createCards(Math.floor(numCards / 2))),
   pairs: [],
-  firstSelected: null,
-  secondSelected: null
+  firstSelected: undefined,
+  secondSelected: undefined
 })
 
 const App: React.FC = () => {
@@ -23,14 +23,6 @@ const App: React.FC = () => {
     const index = current.context.cards.indexOf(card)
     send({ type: 'SELECT', index })
   }
-
-  React.useEffect(() => {
-    if (current.value === 'twoSelected') {
-      setTimeout(() => {
-        send('CONTINUE')
-      }, 500)
-    }
-  }, [current.value, send])
 
   const scale = 20 / current.context.cards.length
 

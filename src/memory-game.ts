@@ -1,4 +1,4 @@
-import { Machine, assign, Typestate, createMachine } from 'xstate'
+import { assign, createMachine } from 'xstate'
 
 export type GameCard = {
   type: number
@@ -84,8 +84,8 @@ export function createMemoryGameMachine(initialContext: GameContext) {
           }
         },
         twoSelected: {
-          on: {
-            CONTINUE: 'comparing'
+          after: {
+            500: 'comparing'
           }
         },
         comparing: {

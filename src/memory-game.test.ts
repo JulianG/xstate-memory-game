@@ -1,5 +1,6 @@
 import { createMemoryGameMachine, GameContext } from './memory-game'
 import { interpret, State, EventObject } from 'xstate'
+import { SimulatedClock } from 'xstate/lib/SimulatedClock'
 import { createCards } from './factory'
 
 describe('memory-game', () => {
@@ -11,7 +12,11 @@ describe('memory-game', () => {
       secondSelected: undefined
     })
 
-    const service = interpret(machine).start()
+    const simulatedClock = new SimulatedClock()
+
+    const service = interpret(machine, {
+      clock: simulatedClock
+    }).start()
 
     const getState = () => service.state
     const getContext = () => service.state.context
@@ -27,7 +32,7 @@ describe('memory-game', () => {
     expect(getContext().firstSelected).toMatchObject({ type: 1 })
     expect(getContext().secondSelected).toMatchObject({ type: 1 })
 
-    service.send('CONTINUE')
+    simulatedClock.increment(500)
 
     expect(getState().value).toBe('idle')
     expect(getContext().firstSelected).toBeUndefined()
@@ -48,7 +53,7 @@ describe('memory-game', () => {
     service.send({ type: 'SELECT', index: 4 })
     expect(getContext().secondSelected).toMatchObject({ type: 3 })
 
-    service.send({ type: 'CONTINUE' })
+    simulatedClock.increment(500)
 
     expect(getState().value).toBe('idle')
     expect(getContext().firstSelected).toBeUndefined()
@@ -69,7 +74,7 @@ describe('memory-game', () => {
     expect(getContext().firstSelected).toMatchObject({ type: 2 })
     expect(getContext().firstSelected).toMatchObject({ type: 2 })
 
-    service.send({ type: 'CONTINUE' })
+    simulatedClock.increment(500)
 
     expect(getState().value).toBe('idle')
     expect(getContext().firstSelected).toBeUndefined()
@@ -95,7 +100,7 @@ describe('memory-game', () => {
     expect(getContext().firstSelected).toMatchObject({ type: 3 })
     expect(getContext().secondSelected).toMatchObject({ type: 3 })
 
-    service.send({ type: 'CONTINUE' })
+    simulatedClock.increment(500)
 
     expect(getState().value).toBe('finished')
     expect(getContext().pairs).toMatchObject([
